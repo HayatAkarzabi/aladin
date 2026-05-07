@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(135deg, #1a0533 0%, #3d0b6e 40%, #1a0a2e 100%);
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+    color: white;
+  }
+
+  .stars { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+  .star { position:absolute; background:white; border-radius:50%; animation: twinkle var(--dur) ease-in-out infinite alternate; }
+  @keyframes twinkle { from{opacity:.2;transform:scale(.8)} to{opacity:1;transform:scale(1.2)} }
+
+  .confetti-container { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+  .confetti { position:absolute; top:-20px; animation:fall linear infinite; border-radius:2px; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+  .music-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF69B4, #FF8C00);
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    box-shadow: 0 4px 20px rgba(255,105,180,0.6);
+    display: flex; align-items:center; justify-content:center;
+    animation: musicPulse 2s ease-in-out infinite;
+    transition: transform 0.2s;
+  }
+  .music-btn:hover { transform: scale(1.1); }
+  @keyframes musicPulse {
+    0%,100% { box-shadow: 0 4px 20px rgba(255,105,180,0.6); }
+    50% { box-shadow: 0 4px 40px rgba(255,105,180,0.9), 0 0 0 10px rgba(255,105,180,0.1); }
+  }
+
+  .music-label {
+    position: fixed;
+    bottom: 92px;
+    right: 16px;
+    z-index: 100;
+    background: rgba(0,0,0,0.7);
+    color: #FFD700;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .music-label.show { opacity: 1; }
+
+  .now-playing {
+    position: fixed;
+    bottom: 24px;
+    left: 16px;
+    z-index: 100;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 14px;
+    padding: 8px 14px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    max-width: 200px;
+  }
+  .now-playing.show { display: flex; }
+  .np-icon { font-size: 18px; animation: spin 2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .np-text { font-size: 11px; color: #FFD700; font-family: 'Poppins', sans-serif; }
+
+  .card-container { position:relative; z-index:10; max-width:680px; margin:0 auto; padding:20px 16px 100px; }
+
+  .header { text-align:center; padding:30px 0 20px; animation:fadeDown 1s ease forwards; }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+
+  .birthday-label { font-family:'Dancing Script',cursive; font-size:28px; color:#FFD700; letter-spacing:2px; animation:glow 2s ease-in-out infinite alternate; }
+  @keyframes glow { from{text-shadow:0 0 10px rgba(255,215,0,.4)} to{text-shadow:0 0 30px rgba(255,215,0,.9),0 0 60px rgba(255,165,0,.5)} }
+
+  .main-title { font-family:'Playfair Display',serif; font-size:52px; font-weight:900; background:linear-gradient(135deg,#FFD700,#FF8C00,#FFD700); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:shimmer 3s linear infinite; line-height:1.1; margin:8px 0; }
+  @keyframes shimmer { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+  .name { font-family:'Dancing Script',cursive; font-size:62px; color:#FF69B4; text-shadow:0 0 30px rgba(255,105,180,.7); animation:pulse 1.5s ease-in-out infinite alternate; }
+  @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.05)} }
+
+  .age-badge { display:inline-block; background:linear-gradient(135deg,#FF6B6B,#FF8E53); border-radius:50%; width:90px; height:90px; line-height:90px; font-family:'Playfair Display',serif; font-size:38px; font-weight:900; color:white; margin:10px auto; box-shadow:0 0 30px rgba(255,107,107,.6); animation:bounce 1s ease-in-out infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0) scale(1)} to{transform:translateY(-8px) scale(1.05)} }
+
+  .photos-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; animation:fadeUp 1.2s ease forwards; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+
+  .photo-card { border-radius:16px; overflow:hidden; position:relative; box-shadow:0 8px 32px rgba(0,0,0,.5); transition:transform .3s ease,box-shadow .3s ease; cursor:pointer; border:2px solid rgba(255,215,0,.3); }
+  .photo-card:hover { transform:scale(1.03) translateY(-4px); box-shadow:0 16px 48px rgba(255,215,0,.3); border-color:rgba(255,215,0,.8); }
+  .photo-card.featured { grid-column:1/-1; max-height:320px; }
+  .photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* ← contient toute la photo sans couper */
+    background: #000;      /* ← fond noir pour les espaces vides */
+    display: block;
+}
+
+.photo-card.featured img {
+    max-height: 320px;
+    object-fit: contain;   /* ← pareil ici */
+    background: #000;
+}
+  .photo-overlay { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.7)); padding:16px; transform:translateY(100%); transition:transform .3s ease; }
+  .photo-card:hover .photo-overlay { transform:translateY(0); }
+  .photo-caption { font-family:'Dancing Script',cursive; font-size:18px; color:#FFD700; }
+
+  .message-card { background:rgba(255,255,255,.08); backdrop-filter:blur(10px); border:1px solid rgba(255,215,0,.3); border-radius:20px; padding:24px; margin:20px 0; text-align:center; }
+  .message-arabic { font-family:'Playfair Display',serif; font-size:22px; color:#FFD700; margin-bottom:12px; direction:rtl; }
+  .message-fr { font-size:15px; color:rgba(255,255,255,.85); line-height:1.7; }
+
+  .hearts-row { text-align:center; font-size:28px; margin:16px 0; animation:heartbeat 1s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+  .balloons { display:flex; justify-content:center; gap:16px; margin:20px 0; font-size:40px; animation:float 3s ease-in-out infinite alternate; }
+  @keyframes float { from{transform:translateY(0)} to{transform:translateY(-12px)} }
+  .balloons span { animation:sway var(--s) ease-in-out infinite alternate; }
+  @keyframes sway { from{transform:rotate(-5deg)} to{transform:rotate(5deg)} }
+
+  .cake-row { text-align:center; font-size:56px; margin:10px 0; animation:cakeBounce 2s ease-in-out infinite; }
+  @keyframes cakeBounce { 0%,100%{transform:scale(1) rotate(-3deg)} 50%{transform:scale(1.08) rotate(3deg)} }
+
+  .signature { background:rgba(255,255,255,.06); border:1px solid rgba(255,105,180,.3); border-radius:20px; padding:20px 24px; text-align:center; margin-top:20px; }
+  .sig-from { font-family:'Dancing Script',cursive; font-size:22px; color:#FF69B4; text-shadow:0 0 15px rgba(255,105,180,.5); }
+  .sig-msg { font-family:'Dancing Script',cursive; font-size:17px; color:rgba(255,255,255,.8); margin:8px 0; line-height:1.5; }
+  .sig-date { font-size:13px; color:rgba(255,255,255,.4); margin-top:8px; }
+
+  .date-tag { display:inline-block; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:20px; padding:6px 18px; font-size:13px; font-weight:600; letter-spacing:1px; margin-top:8px; box-shadow:0 4px 15px rgba(102,126,234,.4); }
+
+  .music-info-box {
+    background: rgba(255,215,0,0.08);
+    border: 1px dashed rgba(255,215,0,0.4);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  .music-info-box h3 { font-family:'Dancing Script',cursive; font-size:22px; color:#FFD700; margin-bottom:10px; }
+  .music-info-box p { font-size:13px; color:rgba(255,255,255,.7); line-height:1.7; }
+  .music-info-box code { background:rgba(255,255,255,.1); padding:2px 8px; border-radius:6px; font-size:12px; color:#FF69B4; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<!-- Bouton musique -->
+<button class="music-btn" id="musicBtn" title="Jouer la musique">🎵</button>
+<div class="music-label" id="musicLabel">Cliquer pour la musique 🎶</div>
+<div class="now-playing" id="nowPlaying">
+  <span class="np-icon">🎵</span>
+  <span class="np-text">Happy Birthday Aladin ♪</span>
+</div>
+
+<!-- Audio — remplace src par ton fichier -->
+<audio id="bgMusic" loop preload="none">
+  <source src="img/birth.mpeg" type="audio/mpeg">
+</audio>
+
+<div class="card-container">
+
+  <div class="header">
+    <div class="birthday-label">✨ Joyeux Anniversaire ✨</div>
+    <div class="main-title">Happy Birthday</div>
+    <div class="name">Aladin</div>
+    <div class="age-badge">1</div>
+    <div class="date-tag">🗓️ 8 Mai 2026</div>
+  </div>
+
+  <div class="balloons">
+    <span style="--s:2.1s">🎈</span>
+    <span style="--s:2.7s">🎈</span>
+    <span style="--s:1.9s">🎀</span>
+    <span style="--s:2.4s">🎈</span>
+    <span style="--s:2.8s">🎈</span>
+  </div>
+
+  <!-- Photo 1 : Naissance (premier au monde) -->
+  <div class="photos-grid">
+    <div class="photo-card featured">
+      <img src="img/fete.jpeg" alt="Premier jour" loading="lazy">
+      <div class="photo-overlay"><div class="photo-caption">🍼 Bienvenue au monde, Aladin !</div></div>
+    </div>
+  </div>
+
+  <!-- Photos 2&3 : Fête de naissance -->
+  <div class="photos-grid">
+    <div class="photo-card">
+      <img src="img/firstday.jpeg" alt="Fête naissance" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">💰 Déjà riche ! 😄</div></div>
+    </div>
+    <div class="photo-card">
+      <img src="img/bienv.jpeg" alt="Famille fête" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">🎊 Avec la plus belle tata </div></div>
+    </div>
+  </div>
+
+  <!-- Photo 4 : Grand format studio -->
+  <div class="photos-grid">
+    <div class="photo-card featured">
+      <img src="img/aladinjaune.jpeg" alt="Roi du monde" loading="lazy">
+      <div class="photo-overlay"><div class="photo-caption">🌈 Le roi du monde !</div></div>
+    </div>
+  </div>
+
+  <!-- Photos 5&6 : Avec maman & tante -->
+  <div class="photos-grid">
+    <div class="photo-card">
+      <img src="img/avecmama.jpeg" alt="Avec maman" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">💛 Avec maman</div></div>
+    </div>
+    <div class="photo-card">
+      <img src="img/avecmoi.jpeg" alt="Avec tante" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">💖 Avec tata Hayat</div></div>
+    </div>
+  </div>
+
+  <!-- Photos 7&8 : Habillé + aventure -->
+  <div class="photos-grid">
+    <div class="photo-card">
+      <img src="img/king.jpeg" alt="Petit prince" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">👑 Mon petit prince</div></div>
+    </div>
+    <div class="photo-card">
+      <img src="img/avent.jpeg" alt="Aventure" style="height:190px;object-fit:cover;">
+      <div class="photo-overlay"><div class="photo-caption">🚀 Toujours l'aventure !</div></div>
+    </div>
+  </div>
+
+  <div class="cake-row">🎂</div>
+
+  <div class="message-card">
+    <div class="message-arabic">عيد ميلاد سعيد يا علاء الدين الغالي 🌙</div>
+    <div class="message-fr">
+      Un an déjà, mon amour... Un an de sourires qui illuminent nos journées,<br>
+      de petits pas qui font trembler nos cœurs d'amour et de fierté.<br><br>
+      Tu es notre plus beau cadeau du ciel, notre raison de sourire chaque matin.<br>
+      Que cette vie soit douce et belle pour toi, comme tu l'es pour nous. 💫
+    </div>
+  </div>
+
+  <div class="hearts-row">❤️ 🧡 💛 💚 💙 💜 🩷</div>
+
+  <div class="signature">
+    <div class="sig-from">💖 Ta tante Hayat t'aime à la folie ! 💖</div>
+    <div class="sig-msg">Que Dieu te protège, te garde et illumine chaque jour de ta vie,<br>mon petit trésor Aladin ✨</div>
+    <div class="sig-date">8 Mai 2026 🌙</div>
+  </div>
+
+  
+
+<script>
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 3 + 1;
+    star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*2+1}s;animation-delay:${Math.random()*3}s;`;
+    starsContainer.appendChild(star);
+  }
+
+  const confettiContainer = document.getElementById('confetti');
+  const colors = ['#FFD700','#FF69B4','#00BFFF','#FF6B6B','#98FB98','#DDA0DD','#FFA500'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    const size = Math.random() * 10 + 6;
+    c.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size*.4}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*4+3}s;animation-delay:${Math.random()*5}s;opacity:${Math.random()*.8+.2};`;
+    confettiContainer.appendChild(c);
+  }
+
+  // Afficher le label après 2s
+  setTimeout(() => document.getElementById('musicLabel').classList.add('show'), 2000);
+  setTimeout(() => document.getElementById('musicLabel').classList.remove('show'), 5000);
+
+  let playing = false;
+  const audio = document.getElementById('bgMusic');
+  const btn = document.getElementById('musicBtn');
+  const np = document.getElementById('nowPlaying');
+  const label = document.getElementById('musicLabel');
+
+  btn.addEventListener('click', () => {
+    if (!playing) {
+      audio.play().then(() => {
+        playing = true;
+        btn.textContent = '⏸️';
+        np.classList.add('show');
+        label.textContent = 'Musique en cours 🎶';
+        label.classList.add('show');
+        setTimeout(() => label.classList.remove('show'), 2000);
+      }).catch(() => {
+        label.textContent = '⚠️ Ajoute un fichier MP3 !';
+        label.classList.add('show');
+        setTimeout(() => label.classList.remove('show'), 3000);
+      });
+    } else {
+      audio.pause();
+      playing = false;
+      btn.textContent = '🎵';
+      np.classList.remove('show');
+    }
+  });
+</script>
+</body>
+</html>
